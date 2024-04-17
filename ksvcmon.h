@@ -22,6 +22,7 @@ struct metric {
     double          (*do_once)(struct metric *); // shoots and sleeps for sleep_us
     int             (*setup)(struct metric *); // at load time
     int             (*teardown)(struct metric *); // at exit, may not be called
+    int             debug;
 //  --------------------------- PRIVATE PART ---
     int             id;
     pthread_mutex_t lock;

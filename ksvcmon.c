@@ -31,9 +31,16 @@ int metric_setup(struct metric *m)
             return ret;
     }
     m->thread = NULL;
-    return 0;
-}
 
+    if (!m->debug)
+        return 0;
+    printf("METRIC DEBUG TRIGGERED\n");
+    printf("Metric %s registered\n", m->name);
+    double value = m->do_once(m);
+    printf("Metric %s value: %f\n", m->name, value);
+    metric_teardown(m);
+    exit(0);    
+}
 
 int metric_teardown(struct metric *m)
 {
@@ -50,6 +57,7 @@ int metric_teardown(struct metric *m)
     pthread_mutex_destroy(&m->lock);
     return 0;
 }
+
 void usage(char *name)
 {
     fprintf(stderr, "Usage: %s\n", name);
@@ -119,5 +127,6 @@ int main(int argc, char *argv[])
 
     if (start)
         stop_server();
+
     return 0;
 }
