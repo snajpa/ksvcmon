@@ -63,10 +63,13 @@ int metric_teardown(struct metric *m)
 void usage(char *name)
 {
     fprintf(stderr, "Usage: %s\n", name);
-    fprintf(stderr, "  -h HOST: host to bind the server to\n");
-    fprintf(stderr, "  -p PORT: port to bind the server to\n");
-    fprintf(stderr, "  -m METRICS_PREFIX: prefix for the metrics (default: %s)\n", metrics_prefix);
-    fprintf(stderr, "  -n: do not start the server\n");
+    fprintf(stderr, "  -h HOST           host to bind the server to\n");
+    fprintf(stderr, "  -p PORT           port to bind the server to\n");
+    fprintf(stderr, "  -m METRICS_PREFIX prefix for the metrics (default: %s)\n", metrics_prefix);
+    fprintf(stderr, "  -n                do not start the server\n");
+    fprintf(stderr, "  -v                verbose mode - print metrics every second\n");
+    fprintf(stderr, "  -l                list available metrics and exit\n");
+
 }
 
 int main(int argc, char *argv[])
@@ -75,9 +78,13 @@ int main(int argc, char *argv[])
     char *host = NULL;
     int port = -1;
     int start = 1;
+    int list_metrics = 0;
 
-    while ((opt = getopt(argc, argv, "vnh:p:m:")) != -1) {
+    while ((opt = getopt(argc, argv, "lvnh:p:m:")) != -1) {
         switch (opt) {
+            case 'l':
+                list_metrics = 1;
+                break;
             case 'v':
                 verbose = 1;
                 break;
@@ -105,8 +112,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (verbose)
-        printf("Metrics prefix: %s\n", metrics_prefix);
+    if (list_metrics) {
+        printf("Available metrics:\n");
+        for (int i = 0; i < metrics_count; i++) {
+            printf("%15s - %-50s\n", metrics[i]->name, metrics[i]->desc);
+        }
+        return 0;
+    }
 
     if (start && (host == NULL || port == -1)) {
         usage(argv[0]);
@@ -114,6 +126,8 @@ int main(int argc, char *argv[])
     }
 
     if (start && start_server(host, port)) {
+        if (verbose)
+            printf("Metrics prefix: %s\n", metrics_prefix);
         return 1;
     }
 
@@ -127,10 +141,9 @@ int main(int argc, char *argv[])
             usleep(1000 * 1000);
             continue;
         }
-        printf("\n");
         for (int i = 0; i < metrics_count; i++) {
             pthread_mutex_lock(&metrics[i]->lock);
-            printf("%s: %f\n", metrics[i]->name, metrics[i]->value);
+            printf("%-15s %14.4f\n", metrics[i]->name, metrics[i]->value);
             pthread_mutex_unlock(&metrics[i]->lock);
         }
         usleep(1000 * 1000);
