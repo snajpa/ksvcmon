@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, withUnfreePkgs ? false }:
+{ pkgs ? import <nixpkgs> {} }:
 
 pkgs.stdenv.mkDerivation {
   name = "ksvcmon";
@@ -8,4 +8,4 @@ pkgs.stdenv.mkDerivation {
     mkdir -p $out/bin
     cp ./ksvcmon $out/bin/ksvcmon
   '';
-}  
+}

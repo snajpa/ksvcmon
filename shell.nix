@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {}, withUnfreePkgs ? false }:
+{ pkgs ? import <nixpkgs> {} }:
 
 with builtins;
 let
