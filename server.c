@@ -1,9 +1,9 @@
 #include <ksvcmon.h>
 #include <microhttpd.h>
 #include <arpa/inet.h>
-       
-#define PORT 8888
-#define HOST "0.0.0.0"
+
+char *big_buf = NULL;
+size_t big_buf_size = 256*1024;
 
 size_t out_metrics(char *buf, size_t *size)
 {
@@ -32,7 +32,6 @@ answer_to_connection(void *cls,
     struct MHD_Response *rsp;
     int ret;
     char *buf;
-    size_t buf_size = 1024*1024;
     (void)cls;
     (void)url;
     (void)version;
@@ -60,15 +59,10 @@ answer_to_connection(void *cls,
         return ret;
     }
     if (strcmp(url, "/metrics") == 0) {
-        buf = malloc(buf_size);
-        if (!buf) {
-            return MHD_NO;
-        }
-        ret = out_metrics(buf, &buf_size);
-        rsp = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_PERSISTENT);
+        ret = out_metrics(big_buf, &big_buf_size);
+        rsp = MHD_create_response_from_buffer(strlen(big_buf), (void *)big_buf, MHD_RESPMEM_PERSISTENT);
         ret = MHD_queue_response(connection, MHD_HTTP_OK, rsp);
         MHD_destroy_response(rsp);
-        free(buf);
         return ret;
     }
     buf = "Bad Request\n";
@@ -91,6 +85,10 @@ struct MHD_Daemon *daemon;
 
 int start_server(char *host, int port)
 {
+    big_buf = malloc(big_buf_size);
+    if (!big_buf) {
+        return MHD_NO;
+    }
     printf("Starting server on %s:%d\n", host, port);
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, port, NULL, NULL,
                               &answer_to_connection, NULL, MHD_OPTION_SOCK_ADDR, inet_addr(host),
@@ -107,5 +105,8 @@ int start_server(char *host, int port)
 int stop_server()
 {
     MHD_stop_daemon(daemon);
+    if (big_buf) {
+        free(big_buf);
+    }
     return 0;
 }
