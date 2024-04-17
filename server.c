@@ -68,6 +68,7 @@ answer_to_connection(void *cls,
         rsp = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_PERSISTENT);
         ret = MHD_queue_response(connection, MHD_HTTP_OK, rsp);
         MHD_destroy_response(rsp);
+        free(buf);
         return ret;
     }
     buf = "Bad Request\n";

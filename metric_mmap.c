@@ -1,7 +1,6 @@
 #include <ksvcmon.h>
 #include <sys/mman.h>
 
-
 #define FILE_SIZE   4096
 #define FILE_NAME   "/tmp/mmap_test"
 

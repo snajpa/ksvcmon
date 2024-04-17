@@ -1,5 +1,4 @@
 #include <ksvcmon.h>
-#include <sys/mman.h>
 
 void *do_nothing(void *arg)
 {
@@ -10,9 +9,9 @@ void *do_nothing(void *arg)
 double do_metric_pthread(struct metric *m)
 {
     int ret;
-    (void)m;
     struct timespec start, end;
     pthread_t thread;
+    (void)m;
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
