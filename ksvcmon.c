@@ -1,5 +1,7 @@
 #include <ksvcmon.h>
 
+int verbose = 0;
+
 char *metrics_prefix = "ksvcmon";
 struct metric *metrics[METRICS_MAX] = {0};
 int metrics_count = 0;
@@ -74,10 +76,11 @@ int main(int argc, char *argv[])
     int port = -1;
     int start = 1;
 
-    printf("Number of metrics: %d\n", metrics_count);
-
-    while ((opt = getopt(argc, argv, "nh:p:m:")) != -1) {
+    while ((opt = getopt(argc, argv, "vnh:p:m:")) != -1) {
         switch (opt) {
+            case 'v':
+                verbose = 1;
+                break;
             case 'n':
                 start = 0;
                 break;
@@ -102,6 +105,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (verbose)
+        printf("Metrics prefix: %s\n", metrics_prefix);
+
     if (start && (host == NULL || port == -1)) {
         usage(argv[0]);
         return EXIT_FAILURE;
@@ -117,6 +123,11 @@ int main(int argc, char *argv[])
     }
 
     while (1) {
+        if (!verbose) {
+            usleep(1000 * 1000);
+            continue;
+        }
+        printf("\n");
         for (int i = 0; i < metrics_count; i++) {
             pthread_mutex_lock(&metrics[i]->lock);
             printf("%s: %f\n", metrics[i]->name, metrics[i]->value);

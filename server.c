@@ -86,27 +86,33 @@ struct MHD_Daemon *daemon;
 int start_server(char *host, int port)
 {
     big_buf = malloc(big_buf_size);
+
     if (!big_buf) {
         return MHD_NO;
     }
-    printf("Starting server on %s:%d\n", host, port);
+
     daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, port, NULL, NULL,
                               &answer_to_connection, NULL, MHD_OPTION_SOCK_ADDR, inet_addr(host),
                               MHD_OPTION_END);
+
     if (!daemon) {
         printf("Cannot start server\n");
         return -1;
     }
 
-    printf("Server started on %s:%d\n", host, port);
+    if (verbose)
+        printf("Server started on %s:%d\n", host, port);
+
     return 0;
 }
 
 int stop_server()
 {
     MHD_stop_daemon(daemon);
+
     if (big_buf) {
         free(big_buf);
     }
+
     return 0;
 }

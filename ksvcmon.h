@@ -14,6 +14,8 @@
 
 #define METRICS_MAX 100
 
+extern int verbose;
+
 struct metric {
     char            *name;
     char            *desc;

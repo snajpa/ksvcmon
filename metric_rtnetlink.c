@@ -76,7 +76,7 @@ double do_metric_rtnetlink(struct metric *m)
     close(fd);
 
     if (!m->debug)
-        return time_diff_us(&start, &end);
+        goto return_time;
 
     for (nl = (struct nlmsghdr*)buf; NLMSG_OK(nl, ret); nl = NLMSG_NEXT(nl, ret)) {
         struct ifaddrmsg *ifa = (struct ifaddrmsg*)NLMSG_DATA(nl);
@@ -92,6 +92,7 @@ double do_metric_rtnetlink(struct metric *m)
         }
     }
 
+return_time:
     return time_diff_us(&start, &end);
 }
 
