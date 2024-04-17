@@ -33,3 +33,5 @@ Available metrics:
         pthread - pthread_create and pthread_join                   
       rtnetlink - get interface addresses over netlink
 ```
+
+All metrics are measured in microseconds.
